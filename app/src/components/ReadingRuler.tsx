@@ -7,8 +7,8 @@ interface ReadingRulerProps {
 }
 
 /**
- * Floating horizontal text ruler that tracks scroll position
- * for visual grounding during reading.
+ * Floating vertical accent line that tracks the exact height 
+ * and Y-position of the active word for subtle visual grounding.
  */
 export default function ReadingRuler({
   activeIndex,
@@ -31,10 +31,13 @@ export default function ReadingRuler({
       if (activeEl) {
         const containerRect = container.getBoundingClientRect();
         const elRect = activeEl.getBoundingClientRect();
+        
+        // Calculate exact top relative to the container's scroll position
         const relativeTop = elRect.top - containerRect.top + container.scrollTop;
-        const lineY = relativeTop + elRect.height / 2;
 
-        ruler.style.transform = `translateY(${lineY}px)`;
+        // Apply smooth transform and match the active word's height
+        ruler.style.transform = `translateY(${relativeTop}px)`;
+        ruler.style.height = `${elRect.height}px`;
       }
 
       rafRef.current = null;
@@ -56,12 +59,11 @@ export default function ReadingRuler({
   return (
     <div
       ref={rulerRef}
-      className="absolute left-3 w-8 h-[6px] pointer-events-none z-20 transition-transform duration-75"
+      className="absolute left-0 w-[3px] rounded-r-md pointer-events-none z-20 transition-all duration-150 ease-out bg-primary"
       style={{
         top: 0,
-        opacity: isImmersed ? 0.3 : 1,
-        willChange: "transform",
-        backgroundColor: "var(--reader-ruler)",
+        opacity: isImmersed ? 0.2 : 0.8,
+        willChange: "transform, height",
       }}
       aria-hidden="true"
     />

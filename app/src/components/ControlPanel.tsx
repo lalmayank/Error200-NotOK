@@ -81,7 +81,7 @@ export default function ControlPanel({
   }
 
   return (
-    <div className="flex flex-col bg-muted border-b border-border">
+    <div className="flex flex-col border-b border-border bg-transparent">
       <div className="px-5 py-4 border-b border-border">
         <h2 className="text-sm font-medium tracking-widest uppercase text-muted-foreground">
           Typography
@@ -94,15 +94,33 @@ export default function ControlPanel({
           <select
             value={settings.font}
             onChange={handleFontChange}
-            className="w-full h-10 px-3 bg-background border border-border text-foreground text-sm focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+            className="w-full h-10 px-3 bg-transparent border border-border text-foreground text-sm focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
             aria-label="Select font face"
           >
             {FONTS.map((f) => (
-              <option key={f.value} value={f.value}>
+              <option key={f.value} value={f.value} className="bg-background">
                 {f.label}
               </option>
             ))}
           </select>
+        </ControlGroup>
+
+        {/* Font Size */}
+        <ControlGroup label="Font Size" ariaLabel="Adjust font size">
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground font-mono w-12 text-right">
+              {(settings.fontSize || 1.5).toFixed(1)}rem
+            </span>
+            <Slider
+              value={[settings.fontSize || 1.5]}
+              onValueChange={(v) => handleSliderChange("fontSize", v)}
+              min={0.8}
+              max={3.0}
+              step={0.1}
+              className="flex-1"
+              aria-label="Font size"
+            />
+          </div>
         </ControlGroup>
 
         {/* Letter Spacing */}
@@ -202,10 +220,11 @@ export default function ControlPanel({
               <button
                 key={tint.value}
                 onClick={() => handleTintChange(tint.value)}
-                className={`w-8 h-8 border transition-all focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 ${settings.backgroundTint === tint.value
+                className={`w-8 h-8 border transition-all focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 ${
+                  settings.backgroundTint === tint.value
                     ? "border-foreground ring-1 ring-foreground"
                     : "border-border hover:border-foreground"
-                  }`}
+                }`}
                 style={{ backgroundColor: tint.color }}
                 aria-label={`Set background to ${tint.label}`}
                 aria-pressed={settings.backgroundTint === tint.value}

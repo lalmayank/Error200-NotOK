@@ -26,6 +26,15 @@ const BG_MAP: Record<string, string> = {
   "soft-mint": "#F0F9F4",
 };
 
+// Added Dark Mode equivalents for the tints
+const DARK_BG_MAP: Record<string, string> = {
+  white: "#09090B", // Tailwind background
+  cream: "#121110",
+  "pale-blue": "#0A111A",
+  yellow: "#14130B",
+  "soft-mint": "#0A120E",
+};
+
 const FONT_MAP: Record<string, string> = {
   Inter: "'Inter', system-ui, sans-serif",
   OpenDyslexic: "'OpenDyslexic', sans-serif",
@@ -43,7 +52,6 @@ export default function LucidaApp() {
   const { serialize, loadFromURL, DEFAULT_SETTINGS } = useURLPersistence();
   const { presets, savePreset, deletePreset } = usePresets();
 
-  // Load settings from URL or defaults
   const initialSettings = useMemo(() => {
     const urlSettings = loadFromURL();
     return urlSettings || DEFAULT_SETTINGS;
@@ -57,7 +65,6 @@ export default function LucidaApp() {
   const readingPaneRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Sensible defaults for layout on mobile.
     setIsSidebarOpen(!isMobile);
     if (isMobile) setActivePane("reader");
   }, [isMobile]);
@@ -69,7 +76,6 @@ export default function LucidaApp() {
   const [highlightState, highlightActions] = useHighlighter(totalWords);
   const [analyticsState, analyticsActions] = useReadingAnalytics();
 
-  // Compute active paragraph for immersion mode
   const activeParagraphId = useMemo(() => {
     let idx = 0;
     for (const p of paragraphs) {
@@ -82,34 +88,33 @@ export default function LucidaApp() {
     return 0;
   }, [paragraphs, highlightState.activeIndex]);
 
-  // tRPC mutations for cloud sync
   const createPresetMutation = trpc.preset.create.useMutation();
 
-  // Apply CSS variables via rAF scheduler whenever settings change
+  // Helper to resolve the correct background color based on theme
+  const currentBgColor = theme === "dark" 
+    ? (DARK_BG_MAP[settings.backgroundTint] || DARK_BG_MAP.cream)
+    : (BG_MAP[settings.backgroundTint] || BG_MAP.cream);
+
   useEffect(() => {
     const updates = {
       "--reader-font": FONT_MAP[settings.font] || FONT_MAP.Inter,
+      "--reader-font-size": `${settings.fontSize || 1.5}rem`, // Added Font Size
       "--reader-letter-spacing": `${settings.letterSpacing}em`,
       "--reader-word-spacing": `${settings.wordSpacing}em`,
       "--reader-line-height": `${settings.lineHeight}`,
       "--reader-paragraph-spacing": `${settings.paragraphSpacing}em`,
       "--reader-column-width": `${settings.columnWidth}ch`,
-      "--reader-bg": BG_MAP[settings.backgroundTint] || BG_MAP.cream,
+      "--reader-bg": currentBgColor, 
     };
     batchUpdate(updates);
-
-    // Also persist to URL
     serialize(settings);
-  }, [settings, batchUpdate, serialize]);
+  }, [settings, batchUpdate, serialize, currentBgColor]);
 
-  // Set the reading pane as the CSS variable target
+  // Apply CSS variables globally so the whole page tints properly
   useEffect(() => {
-    if (readingPaneRef.current) {
-      setTarget(readingPaneRef.current);
-    }
+    setTarget(document.documentElement);
   }, [setTarget]);
 
-  // Analytics tracking
   useEffect(() => {
     analyticsActions.updateWordsRead(highlightState.activeIndex);
   }, [highlightState.activeIndex, analyticsActions]);
@@ -122,10 +127,9 @@ export default function LucidaApp() {
     }
   }, [highlightState.isRunning, analyticsActions]);
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts (unchanged)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't intercept if typing in an input
       if (
         e.target instanceof HTMLInputElement ||
         e.target instanceof HTMLTextAreaElement ||
@@ -138,24 +142,17 @@ export default function LucidaApp() {
         case "ArrowRight":
         case "ArrowDown":
           e.preventDefault();
-          if (highlightState.mode === "manual") {
-            highlightActions.next();
-          }
+          if (highlightState.mode === "manual") highlightActions.next();
           break;
         case "ArrowLeft":
         case "ArrowUp":
           e.preventDefault();
-          if (highlightState.mode === "manual") {
-            highlightActions.prev();
-          }
+          if (highlightState.mode === "manual") highlightActions.prev();
           break;
         case " ":
           e.preventDefault();
-          if (highlightState.mode === "timer") {
-            highlightActions.toggleRun();
-          } else {
-            highlightActions.next();
-          }
+          if (highlightState.mode === "timer") highlightActions.toggleRun();
+          else highlightActions.next();
           break;
         case "Escape":
           e.preventDefault();
@@ -163,13 +160,10 @@ export default function LucidaApp() {
           break;
         case "i":
         case "I":
-          if (!e.ctrlKey && !e.metaKey && !e.altKey) {
-            setIsImmersed((prev) => !prev);
-          }
+          if (!e.ctrlKey && !e.metaKey && !e.altKey) setIsImmersed((prev) => !prev);
           break;
       }
     };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [highlightState.mode, highlightActions]);
@@ -204,12 +198,12 @@ export default function LucidaApp() {
       if (user) {
         createPresetMutation.mutate({
           name: preset.name,
-          font: s.font as "Inter" | "OpenDyslexic" | "Lexie Readable" | "Georgia" | "System",
+          font: s.font as any,
           letterSpacing: s.letterSpacing,
           wordSpacing: s.wordSpacing,
           lineHeight: s.lineHeight,
           columnWidth: s.columnWidth,
-          backgroundTint: s.backgroundTint as "cream" | "pale-blue" | "yellow" | "soft-mint" | "white",
+          backgroundTint: s.backgroundTint as any,
           wpm: s.wpm,
         });
       }
@@ -232,26 +226,30 @@ export default function LucidaApp() {
   }, [theme, setTheme]);
 
   return (
-    <div className="h-screen w-screen flex flex-col overflow-hidden bg-background text-foreground">
+    // Apply the background color variable directly to the root container
+    <div 
+      className="h-screen w-screen flex flex-col overflow-hidden text-foreground transition-colors duration-300"
+      style={{ backgroundColor: "var(--reader-bg)" }}
+    >
       {/* Header */}
+{/* Header (Glass) */}
       <header
-        className={`shrink-0 h-14 border-b border-border flex items-center justify-between px-4 sm:px-6 bg-background z-50 transition-opacity duration-400 ${isImmersed ? "opacity-10" : "opacity-100"
-          }`}
+        className={`shrink-0 h-14 border-b border-border/30 bg-background/40 backdrop-blur-xl flex items-center justify-between px-4 sm:px-6 z-50 transition-all duration-400 ${
+          isImmersed ? "opacity-10" : "opacity-100"
+        }`}
       >
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsSidebarOpen((p) => !p)}
-            className="px-2 py-1 text-xs font-medium tracking-wider uppercase border border-border bg-background text-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+            className="px-2 py-1 text-xs font-medium tracking-wider uppercase border border-border/50 rounded-md text-foreground hover:bg-foreground/10 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 transition-colors"
             aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
             aria-pressed={isSidebarOpen}
           >
             {isSidebarOpen ? "Hide" : "Show"}
           </button>
 
-          <h1 className="text-lg font-medium tracking-tight">
-            Project Lucida
-          </h1>
-          <span className="hidden sm:inline text-xs text-muted-foreground font-mono tracking-wide">
+          <h1 className="text-lg font-semibold tracking-tight">Project Lucida</h1>
+          <span className="hidden sm:inline text-xs text-muted-foreground font-mono tracking-wide opacity-70">
             Adaptive Reading Environment
           </span>
         </div>
@@ -259,72 +257,62 @@ export default function LucidaApp() {
         <div className="flex items-center gap-3">
           {/* Mobile Pane Switcher */}
           {isMobile && !isImmersed && (
-            <div className="flex items-center gap-2" role="tablist" aria-label="Pane switcher">
+            <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg" role="tablist" aria-label="Pane switcher">
               <button
                 onClick={() => setActivePane("source")}
-                className={`px-3 py-1.5 text-xs font-medium tracking-wider uppercase border transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 ${activePane === "source"
-                    ? "bg-primary text-primary-foreground border-border"
-                    : "bg-background text-muted-foreground border-border hover:bg-muted"
-                  }`}
+                className={`px-3 py-1 text-xs font-medium tracking-wider uppercase rounded-md transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 ${
+                  activePane === "source"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
                 role="tab"
                 aria-selected={activePane === "source"}
-                aria-label="Show source text"
               >
                 Source
               </button>
               <button
                 onClick={() => setActivePane("reader")}
-                className={`px-3 py-1.5 text-xs font-medium tracking-wider uppercase border transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 ${activePane === "reader"
-                    ? "bg-primary text-primary-foreground border-border"
-                    : "bg-background text-muted-foreground border-border hover:bg-muted"
-                  }`}
+                className={`px-3 py-1 text-xs font-medium tracking-wider uppercase rounded-md transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 ${
+                  activePane === "reader"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
                 role="tab"
                 aria-selected={activePane === "reader"}
-                aria-label="Show reading pane"
               >
                 Reader
               </button>
             </div>
           )}
 
-          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="px-3 py-1.5 text-xs font-medium tracking-wider uppercase border border-border bg-background text-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
-            aria-label="Toggle light and dark mode"
+            className="px-3 py-1.5 text-xs font-medium tracking-wider uppercase border border-border/50 rounded-md text-foreground hover:bg-foreground/10 transition-colors"
           >
             {theme === "dark" ? "Light" : "Dark"}
           </button>
 
-          {/* Immersion Toggle */}
           <button
             onClick={() => setIsImmersed((p) => !p)}
-            className={`px-3 py-1.5 text-xs font-medium tracking-wider uppercase border transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 ${isImmersed
-                ? "bg-primary text-primary-foreground border-border"
-                : "bg-background text-muted-foreground border-border hover:bg-muted"
-              }`}
-            aria-pressed={isImmersed}
-            aria-label="Toggle immersion mode"
+            className={`px-3 py-1.5 text-xs font-medium tracking-wider uppercase border rounded-md transition-colors ${
+              isImmersed
+                ? "bg-primary text-primary-foreground border-primary/50 shadow-md shadow-primary/20"
+                : "text-foreground border-border/50 hover:bg-foreground/10"
+            }`}
           >
             {isImmersed ? "Exit Immersion" : "Immersion"}
           </button>
 
           {/* Auth */}
           {user ? (
-            <div className="flex items-center gap-2">
-              <span className="hidden sm:inline text-xs text-muted-foreground">{user.name || "User"}</span>
-              <a
-                href="/api/oauth/logout"
-                className="text-xs text-muted-foreground hover:text-foreground underline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
-              >
+            <div className="flex items-center gap-3 ml-2">
+              <span className="hidden sm:inline text-xs font-medium">{user.name || "User"}</span>
+              <a href="/api/oauth/logout" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
                 Log out
               </a>
             </div>
           ) : (
-            <a
-              href="/login"
-              className="text-xs text-muted-foreground hover:text-foreground underline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
-            >
+            <a href="/login" className="text-xs font-medium text-muted-foreground hover:text-foreground ml-2 transition-colors">
               Log in
             </a>
           )}
@@ -333,24 +321,23 @@ export default function LucidaApp() {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar: Typography + Presets + Highlight */}
+        {/* Sidebar */}
+        {/* Sidebar (Glass) */}
         <div
           className={
             isMobile
-              ? `fixed top-14 bottom-0 left-0 z-50 w-[320px] max-w-[85vw] border-r border-border bg-muted transition-transform duration-300 ${isImmersed || !isSidebarOpen ? "-translate-x-full" : "translate-x-0"
-              }`
-              : `shrink-0 w-80 border-r border-border bg-muted transition-all duration-300 ${isImmersed || !isSidebarOpen ? "w-0 opacity-0 overflow-hidden" : "w-80 opacity-100"
-              }`
+              ? `fixed top-14 bottom-0 left-0 z-50 w-[320px] max-w-[85vw] border-r border-border/30 bg-muted/40 backdrop-blur-2xl transition-transform duration-300 ${
+                  isImmersed || !isSidebarOpen ? "-translate-x-full" : "translate-x-0"
+                }`
+              : `shrink-0 w-80 border-r border-border/30 bg-muted/30 backdrop-blur-2xl transition-all duration-300 ${
+                  isImmersed || !isSidebarOpen ? "w-0 opacity-0 overflow-hidden" : "w-80 opacity-100"
+                }`
           }
           aria-hidden={isImmersed || (!isSidebarOpen && !isMobile)}
         >
           <div className="h-full flex flex-col overflow-hidden">
-            <div className="flex-1 overflow-y-auto">
-              <ControlPanel
-                settings={settings}
-                onSettingsChange={handleSettingsChange}
-                isImmersed={isImmersed}
-              />
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              <ControlPanel settings={settings} onSettingsChange={handleSettingsChange} isImmersed={isImmersed} />
               <PresetManager
                 presets={presets}
                 currentSettings={settings}
@@ -360,29 +347,22 @@ export default function LucidaApp() {
                 isImmersed={isImmersed}
               />
             </div>
-            <HighlightControls
-              state={highlightState}
-              actions={highlightActions}
-              isImmersed={isImmersed}
-            />
+            <HighlightControls state={highlightState} actions={highlightActions} isImmersed={isImmersed} />
           </div>
         </div>
 
-        {/* Center: Capture + Reading Panes */}
+        {/* Center Panes */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Capture Pane */}
           <div
             className={
               isMobile
                 ? `${activePane === "source" && !isImmersed ? "flex-1" : "hidden"}`
-                : `shrink-0 transition-all duration-300 ${isImmersed ? "w-0 opacity-0 overflow-hidden" : "w-1/2 opacity-100"
-                }`
+                : `shrink-0 transition-all duration-300 ${isImmersed ? "w-0 opacity-0 overflow-hidden" : "w-1/2 opacity-100"}`
             }
           >
             <CapturePane onRehydrate={handleRehydrate} isImmersed={isImmersed} />
           </div>
 
-          {/* Reading Pane */}
           <div
             className={
               isMobile
@@ -393,10 +373,8 @@ export default function LucidaApp() {
             <div
               ref={readingPaneRef}
               className="lucida-reading-pane h-full overflow-y-auto relative"
+              style={{ fontSize: "var(--reader-font-size)" }} // Apply new font size here
               role="region"
-              aria-label="Reading area"
-              aria-live="polite"
-              aria-atomic="false"
             >
               <ReadingPane
                 paragraphs={paragraphs}
@@ -406,19 +384,11 @@ export default function LucidaApp() {
                 immersionActiveParagraph={activeParagraphId}
                 containerRef={readingPaneRef}
               />
-
-              {/* Gutter marker (not over text) */}
-              <ReadingRuler
-                activeIndex={highlightState.activeIndex}
-                containerRef={readingPaneRef}
-                isImmersed={isImmersed}
-              />
+              <ReadingRuler activeIndex={highlightState.activeIndex} containerRef={readingPaneRef} isImmersed={isImmersed} />
             </div>
           </div>
         </div>
       </div>
-
-      {/* Analytics Footer */}
       <AnalyticsFooter state={analyticsState} isImmersed={isImmersed} />
     </div>
   );
