@@ -1,29 +1,36 @@
+# Stage 1: Base
 FROM node:20-alpine AS base
 WORKDIR /app
 
+# Stage 2: Install ALL dependencies (for building)
 FROM base AS deps
 COPY package.json package-lock.json ./
-ENV HTTP_PROXY=http://172.23.0.4:2003
-ENV HTTPS_PROXY=http://172.23.0.4:2003
-ENV http_proxy=http://172.23.0.4:2003
-ENV https_proxy=http://172.23.0.4:2003
-RUN npm config set registry https://npm.mirrors.msh.team \
-    && npm config set proxy $HTTP_PROXY \
-    && npm config set https-proxy $HTTPS_PROXY \
-    && npm config set strict-ssl false \
-    && npm config set fund false \
-    && npm config set audit false
+# Removed the custom proxies and registry so Render can reach NPM
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci --prefer-offline --no-audit
+    npm ci --prefer-offline --no-audit --fund false
 
+# Stage 3: Build the application
 FROM deps AS build
 COPY . .
 RUN npm run build
 
+# Stage 4: Production Dependencies Only
+FROM base AS prod-deps
+COPY package.json package-lock.json ./
+# Install ONLY production dependencies
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --omit=dev --prefer-offline --no-audit --fund false
+
+# Stage 5: Final Production Image
 FROM node:20-alpine AS production
-COPY --from=deps /app/node_modules ./node_modules
+WORKDIR /app
+
+# Copy only production node_modules
+COPY --from=prod-deps /app/node_modules ./node_modules
+# Copy the compiled dist folder (frontend + backend)
 COPY --from=build /app/dist ./dist
-COPY package.json .env ./
+# Only copy package.json (keep .env out for security)
+COPY package.json ./
 
 EXPOSE 3000
 CMD ["npm", "start"]
