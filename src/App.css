@@ -1,0 +1,184 @@
+/**
+ * App.css
+ * Global styles for the Typography Engine
+ */
+
+@import "tailwindcss";
+
+/* CSS Custom Properties Root */
+:root {
+  --font-size: 18px;
+  --letter-spacing: 0px;
+  --word-spacing: 0px;
+  --line-height: 1.6;
+  --column-width: 600px;
+  --bg-luminance: 15%;
+  --font-family: 'Georgia', serif;
+  --highlight-index: 0;
+}
+
+/* Smooth scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.4), rgba(34, 197, 94, 0.4));
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(59, 130, 246, 0.6),
+    rgba(34, 197, 94, 0.6)
+  );
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-color: rgba(59, 130, 246, 0.4) rgba(255, 255, 255, 0.05);
+  scrollbar-width: thin;
+}
+
+/* Smooth transitions for focus states */
+input[type='range']:focus {
+  transition: box-shadow 0.2s ease;
+}
+
+button:focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+/* Prevent FOUC (Flash of Unstyled Content) */
+body {
+  background-color: #030712;
+}
+
+/* Slider thumb styling */
+input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  transition: all 0.2s ease;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+input[type='range']::-webkit-slider-thumb:hover {
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
+  transform: scale(1.1);
+}
+
+input[type='range']::-webkit-slider-thumb:active {
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.6);
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease;
+}
+
+input[type='range']::-moz-range-thumb:hover {
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
+  transform: scale(1.1);
+}
+
+/* Animation for smooth text highlighting */
+@keyframes highlightPulse {
+  0%, 100% {
+    background: rgba(250, 204, 21, 0.3);
+  }
+  50% {
+    background: rgba(250, 204, 21, 0.5);
+  }
+}
+
+.highlight-pulse {
+  animation: highlightPulse 0.6s ease-in-out;
+}
+
+/* Shimmer animation for skeleton loaders */
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Ensure proper layout stacking */
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Landing page font family */
+html {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Accessibility: Visible focus indicators */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: 0 0 0 2px #3b82f6, 0 0 0 4px #030712;
+}
+
+/* Text selection styling */
+::selection {
+  background-color: rgba(59, 130, 246, 0.5);
+  color: white;
+}
+
+::-moz-selection {
+  background-color: rgba(59, 130, 246, 0.5);
+  color: white;
+}
+
+/* Smooth font transitions */
+* {
+  transition-property: font-size, letter-spacing, line-height;
+  transition-duration: 0.3s;
+  transition-timing-function: ease-out;
+}
+
+/* Prevent layout shift on hover */
+button,
+input[type='range'] {
+  transition: all 0.2s ease;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: more) {
+  button,
+  input[type='range'] {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
