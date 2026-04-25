@@ -8,12 +8,12 @@ import { env } from "./lib/env";
 import { createOAuthCallbackHandler } from "./kimi/auth";
 import { Paths } from "@contracts/constants";
 
-// Define the Hono instance
+// 1. Define the Hono instance
 const app = new Hono().basePath("/api");
 
 app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 
-// Routes
+// 2. Routes
 app.get(Paths.oauthCallback, createOAuthCallbackHandler());
 
 app.use("/trpc/*", async (c) => {
@@ -21,7 +21,6 @@ app.use("/trpc/*", async (c) => {
     endpoint: "/api/trpc",
     req: c.req.raw,
     router: appRouter,
-    // Cast to any to bypass the strict FetchCreateContextFnOptions check
     createContext: (opts: any) => createContext({
       req: c.req.raw,
       resHeaders: c.res.headers,
@@ -32,18 +31,26 @@ app.use("/trpc/*", async (c) => {
 
 app.all("/*", (c) => c.json({ error: "Not Found" }, 404));
 
-// Export for Vercel with a type cast to prevent the "App" mismatch
-export default handle(app as any);
+/**
+ * 3. DUAL ENVIRONMENT EXPORT
+ * * Vercel Serverless needs a function export (handle(app)).
+ * Vite Dev Server needs the Hono app instance to access .fetch().
+ */
+const handler = handle(app);
 
-// Local development server (Ignored by Vercel)
+// This line fixes the "app.fetch is not a function" error in local dev
+// It attaches the Hono fetch method to the Vercel handler function
+Object.assign(handler, { fetch: (req: Request, env: any, ctx: any) => app.fetch(req, env, ctx) });
+
+export default handler;
+
+// 4. Local production Node.js server (Ignored by Vercel)
 if (env.isProduction && typeof process !== 'undefined' && process.env.VERCEL !== '1') {
   const { serve } = await import("@hono/node-server");
   try {
     const { serveStaticFiles } = await import("./lib/vite");
     serveStaticFiles(app as any);
-  } catch (e) {
-    console.error("Static file server failed to load");
-  }
+  } catch (e) { }
 
   const port = parseInt(process.env.PORT || "3000");
   serve({ fetch: app.fetch, port });
