@@ -1,0 +1,226 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://cdn.jsdelivr.net/npm/opendyslexic@1.0.0/opendyslexic-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Lexie Readable';
+  src: url('https://fonts.cdnfonts.com/s/15396/LexieReadable-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 0 0% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 82%;
+    --input: 0 0% 82%;
+    --ring: 0 0% 10%;
+    --radius: 0px;
+
+    /* Lucida Reader System */
+    --reader-font: 'Inter', system-ui, sans-serif;
+    --reader-letter-spacing: 0em;
+    --reader-word-spacing: 0.25em;
+    --reader-line-height: 1.6;
+    --reader-paragraph-spacing: 1.5em;
+    --reader-column-width: 65ch;
+    --reader-bg: #FDFBF7;
+    --reader-text: #1A1A1A;
+    --reader-highlight: #FFD54F;
+    --reader-ruler: #000000;
+  }
+
+  .dark {
+    --background: 0 0% 8%;
+    --foreground: 0 0% 96%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 96%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 0 0% 96%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 0 0% 14%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 0 0% 14%;
+    --accent-foreground: 0 0% 96%;
+    --border: 0 0% 22%;
+    --input: 0 0% 22%;
+    --ring: 0 0% 96%;
+
+    /* Reader defaults for dark chrome (tints still selectable) */
+    --reader-text: hsl(var(--foreground));
+    --reader-ruler: hsl(var(--foreground));
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+    overflow: hidden;
+  }
+
+  /* Strict accessibility focus rings */
+  *:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Remove default button rounding globally */
+  button {
+    border-radius: 0 !important;
+  }
+}
+
+@layer components {
+  .lucida-reading-pane {
+    font-family: var(--reader-font);
+    letter-spacing: var(--reader-letter-spacing);
+    word-spacing: var(--reader-word-spacing);
+    line-height: var(--reader-line-height);
+    background-color: var(--reader-bg);
+    color: var(--reader-text);
+    transition: background-color 300ms ease-out;
+  }
+
+  .lucida-word-token {
+    display: inline;
+    transition: background-color 100ms linear;
+    cursor: pointer;
+    padding: 0.05em 0.1em;
+    margin: -0.05em -0.1em;
+    border-radius: 2px;
+  }
+
+  .lucida-word-token:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+
+  .lucida-word-token.is-active {
+    background-color: var(--reader-highlight);
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: -1px;
+  }
+
+  .lucida-word-token.was-active {
+    background-color: rgba(255, 213, 79, 0.3);
+  }
+
+  .lucida-paragraph {
+    margin-bottom: var(--reader-paragraph-spacing);
+  }
+
+  /* Range input styling for Swiss flat design */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 2px;
+    background: #D1D1D1;
+    border-radius: 0;
+    outline: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #1A1A1A;
+    border: 2px solid #1A1A1A;
+    cursor: pointer;
+    border-radius: 0;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: #1A1A1A;
+    border: 2px solid #1A1A1A;
+    cursor: pointer;
+    border-radius: 0;
+  }
+
+  input[type="range"]:focus-visible::-webkit-slider-thumb {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+  }
+
+  /* Select dropdown flat styling */
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='currentColor' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+}
+
+@layer utilities {
+  .font-opendyslexic {
+    font-family: 'OpenDyslexic', sans-serif;
+  }
+
+  .font-lexie {
+    font-family: 'Lexie Readable', sans-serif;
+  }
+
+  .bg-cream {
+    background-color: #FDFBF7;
+  }
+
+  .bg-pale-blue {
+    background-color: #F0F4F8;
+  }
+
+  .bg-yellow {
+    background-color: #FEF9E7;
+  }
+
+  .bg-soft-mint {
+    background-color: #F0F9F4;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

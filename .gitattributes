@@ -1,0 +1,8 @@
+# Line ending policy (Windows-safe)
+# Keep repo content consistent (LF) across platforms.
+* text=auto eol=lf
+
+# Windows script files
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
