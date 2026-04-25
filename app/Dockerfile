@@ -33,4 +33,5 @@ COPY --from=build /app/dist ./dist
 COPY package.json ./
 
 EXPOSE 3000
-CMD ["npm", "start"]
+# Change this line in your Dockerfile
+CMD ["node", "-r", "dotenv/config", "dist/boot.js"]
