@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import type { ReaderSettings } from "@/hooks/useURLPersistence";
 
 interface ControlPanelProps {
@@ -35,8 +36,8 @@ function ControlGroup({
   ariaLabel?: string;
 }) {
   return (
-    <div className="mb-7" role="group" aria-label={ariaLabel || label}>
-      <Label className="text-[10px] font-semibold tracking-widest uppercase text-violet-400/80 block mb-3">
+    <div className="mb-5" role="group" aria-label={ariaLabel || label}>
+      <Label className="text-[10px] font-semibold tracking-widest uppercase text-indigo-500/80 dark:text-indigo-400/70 block mb-3">
         {label}
       </Label>
       {children}
@@ -81,159 +82,186 @@ export default function ControlPanel({
   }
 
   return (
-    <div className="flex flex-col border-b border-violet-100/50">
+    <div className="flex flex-col border-b border-slate-200/50 dark:border-slate-800/50">
       {/* Section Header */}
-      <div className="px-5 py-4 border-b border-violet-100/50 bg-violet-50/30">
-        <h2 className="text-[10px] font-semibold tracking-widest uppercase text-violet-400/80">
-          Typography
+      <div className="px-5 py-3.5 border-b border-slate-200/50 dark:border-slate-800/50 bg-indigo-50/30 dark:bg-indigo-950/20">
+        <h2 className="text-[10px] font-semibold tracking-widest uppercase text-indigo-500/80 dark:text-indigo-400/70">
+          Typography Controls
         </h2>
       </div>
 
-      <div className="p-5 bg-white/40">
-        {/* Font Face */}
-        <ControlGroup label="Font Face" ariaLabel="Select reading font">
-          <select
-            value={settings.font}
-            onChange={handleFontChange}
-            className="w-full h-10 px-3 bg-white border border-violet-100 text-slate-700 text-sm rounded-xl hover:border-violet-300 focus-visible:outline-2 focus-visible:outline-violet-300 focus-visible:outline-offset-2 transition-colors duration-200"
-            aria-label="Select font face"
-          >
-            {FONTS.map((f) => (
-              <option key={f.value} value={f.value} className="bg-white">
-                {f.label}
-              </option>
-            ))}
-          </select>
-        </ControlGroup>
+      <div className="bg-white/40 dark:bg-slate-900/40">
+        <Accordion type="multiple" defaultValue={["typography", "spacing", "appearance"]} className="px-5">
+          
+          {/* ─── Typography Section ─── */}
+          <AccordionItem value="typography" className="border-slate-200/50 dark:border-slate-800/50">
+            <AccordionTrigger className="text-[11px] font-semibold tracking-wider uppercase text-slate-600 dark:text-slate-400 hover:no-underline py-3.5">
+              Font & Size
+            </AccordionTrigger>
+            <AccordionContent>
+              {/* Font Face */}
+              <ControlGroup label="Font Face" ariaLabel="Select reading font">
+                <select
+                  value={settings.font}
+                  onChange={handleFontChange}
+                  className="w-full h-10 px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm rounded-xl hover:border-indigo-300 dark:hover:border-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-400 focus-visible:outline-offset-2 transition-colors duration-200"
+                  aria-label="Select font face"
+                >
+                  {FONTS.map((f) => (
+                    <option key={f.value} value={f.value} className="bg-white dark:bg-slate-800">
+                      {f.label}
+                    </option>
+                  ))}
+                </select>
+              </ControlGroup>
 
-        {/* Font Size */}
-        <ControlGroup label="Font Size" ariaLabel="Adjust font size">
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] text-slate-400 font-mono w-12 text-right tabular-nums font-semibold">
-              {(settings.fontSize || 1.5).toFixed(1)}rem
-            </span>
-            <Slider
-              value={[settings.fontSize || 1.5]}
-              onValueChange={(v) => handleSliderChange("fontSize", v)}
-              min={0.8}
-              max={3.0}
-              step={0.1}
-              className="flex-1"
-              aria-label="Font size"
-            />
-          </div>
-        </ControlGroup>
+              {/* Font Size */}
+              <ControlGroup label="Font Size" ariaLabel="Adjust font size">
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono w-12 text-right tabular-nums font-semibold">
+                    {(settings.fontSize || 1.5).toFixed(1)}rem
+                  </span>
+                  <Slider
+                    value={[settings.fontSize || 1.5]}
+                    onValueChange={(v) => handleSliderChange("fontSize", v)}
+                    min={0.8}
+                    max={3.0}
+                    step={0.1}
+                    className="flex-1"
+                    aria-label="Font size"
+                  />
+                </div>
+              </ControlGroup>
 
-        {/* Letter Spacing */}
-        <ControlGroup label="Letter Spacing" ariaLabel="Adjust letter spacing">
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] text-slate-400 font-mono w-12 text-right tabular-nums font-semibold">
-              {settings.letterSpacing.toFixed(2)}em
-            </span>
-            <Slider
-              value={[settings.letterSpacing]}
-              onValueChange={(v) => handleSliderChange("letterSpacing", v)}
-              min={-0.05}
-              max={0.3}
-              step={0.01}
-              className="flex-1"
-              aria-label="Letter spacing"
-            />
-          </div>
-        </ControlGroup>
+              {/* Letter Spacing */}
+              <ControlGroup label="Letter Spacing" ariaLabel="Adjust letter spacing">
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono w-12 text-right tabular-nums font-semibold">
+                    {settings.letterSpacing.toFixed(2)}em
+                  </span>
+                  <Slider
+                    value={[settings.letterSpacing]}
+                    onValueChange={(v) => handleSliderChange("letterSpacing", v)}
+                    min={-0.05}
+                    max={0.3}
+                    step={0.01}
+                    className="flex-1"
+                    aria-label="Letter spacing"
+                  />
+                </div>
+              </ControlGroup>
 
-        {/* Word Spacing */}
-        <ControlGroup label="Word Spacing" ariaLabel="Adjust word spacing">
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] text-slate-400 font-mono w-12 text-right tabular-nums font-semibold">
-              {settings.wordSpacing.toFixed(2)}em
-            </span>
-            <Slider
-              value={[settings.wordSpacing]}
-              onValueChange={(v) => handleSliderChange("wordSpacing", v)}
-              min={0}
-              max={1}
-              step={0.01}
-              className="flex-1"
-              aria-label="Word spacing"
-            />
-          </div>
-        </ControlGroup>
+              {/* Word Spacing */}
+              <ControlGroup label="Word Spacing" ariaLabel="Adjust word spacing">
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono w-12 text-right tabular-nums font-semibold">
+                    {settings.wordSpacing.toFixed(2)}em
+                  </span>
+                  <Slider
+                    value={[settings.wordSpacing]}
+                    onValueChange={(v) => handleSliderChange("wordSpacing", v)}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    className="flex-1"
+                    aria-label="Word spacing"
+                  />
+                </div>
+              </ControlGroup>
+            </AccordionContent>
+          </AccordionItem>
 
-        {/* Line Height */}
-        <ControlGroup label="Line Height" ariaLabel="Adjust line height">
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] text-slate-400 font-mono w-12 text-right tabular-nums font-semibold">
-              {settings.lineHeight.toFixed(1)}
-            </span>
-            <Slider
-              value={[settings.lineHeight]}
-              onValueChange={(v) => handleSliderChange("lineHeight", v)}
-              min={1}
-              max={3}
-              step={0.1}
-              className="flex-1"
-              aria-label="Line height"
-            />
-          </div>
-        </ControlGroup>
+          {/* ─── Spacing Section ─── */}
+          <AccordionItem value="spacing" className="border-slate-200/50 dark:border-slate-800/50">
+            <AccordionTrigger className="text-[11px] font-semibold tracking-wider uppercase text-slate-600 dark:text-slate-400 hover:no-underline py-3.5">
+              Layout & Spacing
+            </AccordionTrigger>
+            <AccordionContent>
+              {/* Line Height */}
+              <ControlGroup label="Line Height" ariaLabel="Adjust line height">
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono w-12 text-right tabular-nums font-semibold">
+                    {settings.lineHeight.toFixed(1)}
+                  </span>
+                  <Slider
+                    value={[settings.lineHeight]}
+                    onValueChange={(v) => handleSliderChange("lineHeight", v)}
+                    min={1}
+                    max={3}
+                    step={0.1}
+                    className="flex-1"
+                    aria-label="Line height"
+                  />
+                </div>
+              </ControlGroup>
 
-        {/* Paragraph Spacing */}
-        <ControlGroup label="Paragraph Spacing" ariaLabel="Adjust paragraph spacing">
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] text-slate-400 font-mono w-12 text-right tabular-nums font-semibold">
-              {settings.paragraphSpacing.toFixed(1)}em
-            </span>
-            <Slider
-              value={[settings.paragraphSpacing]}
-              onValueChange={(v) => handleSliderChange("paragraphSpacing", v)}
-              min={0.5}
-              max={3}
-              step={0.1}
-              className="flex-1"
-              aria-label="Paragraph spacing"
-            />
-          </div>
-        </ControlGroup>
+              {/* Paragraph Spacing */}
+              <ControlGroup label="Paragraph Spacing" ariaLabel="Adjust paragraph spacing">
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono w-12 text-right tabular-nums font-semibold">
+                    {settings.paragraphSpacing.toFixed(1)}em
+                  </span>
+                  <Slider
+                    value={[settings.paragraphSpacing]}
+                    onValueChange={(v) => handleSliderChange("paragraphSpacing", v)}
+                    min={0.5}
+                    max={3}
+                    step={0.1}
+                    className="flex-1"
+                    aria-label="Paragraph spacing"
+                  />
+                </div>
+              </ControlGroup>
 
-        {/* Column Width */}
-        <ControlGroup label="Column Width" ariaLabel="Adjust column width">
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] text-slate-400 font-mono w-12 text-right tabular-nums font-semibold">
-              {settings.columnWidth}ch
-            </span>
-            <Slider
-              value={[settings.columnWidth]}
-              onValueChange={(v) => handleSliderChange("columnWidth", v)}
-              min={40}
-              max={90}
-              step={1}
-              className="flex-1"
-              aria-label="Column width"
-            />
-          </div>
-        </ControlGroup>
+              {/* Column Width */}
+              <ControlGroup label="Column Width" ariaLabel="Adjust column width">
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono w-12 text-right tabular-nums font-semibold">
+                    {settings.columnWidth}ch
+                  </span>
+                  <Slider
+                    value={[settings.columnWidth]}
+                    onValueChange={(v) => handleSliderChange("columnWidth", v)}
+                    min={40}
+                    max={90}
+                    step={1}
+                    className="flex-1"
+                    aria-label="Column width"
+                  />
+                </div>
+              </ControlGroup>
+            </AccordionContent>
+          </AccordionItem>
 
-        {/* Background Tint */}
-        <ControlGroup label="Background Tint" ariaLabel="Select background color tint">
-          <div className="flex gap-2.5">
-            {TINTS.map((tint) => (
-              <button
-                key={tint.value}
-                onClick={() => handleTintChange(tint.value)}
-                className={`w-8 h-8 rounded-lg border-2 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-violet-300 focus-visible:outline-offset-2 ${
-                  settings.backgroundTint === tint.value
-                    ? "border-violet-500 shadow-[0px_3px_0px_#c4b5fd] scale-110"
-                    : "border-slate-200 hover:border-violet-300 shadow-[0px_2px_0px_#e2e8f0]"
-                }`}
-                style={{ backgroundColor: tint.color }}
-                aria-label={`Set background to ${tint.label}`}
-                aria-pressed={settings.backgroundTint === tint.value}
-                title={tint.label}
-              />
-            ))}
-          </div>
-        </ControlGroup>
+          {/* ─── Appearance Section ─── */}
+          <AccordionItem value="appearance" className="border-slate-200/50 dark:border-slate-800/50">
+            <AccordionTrigger className="text-[11px] font-semibold tracking-wider uppercase text-slate-600 dark:text-slate-400 hover:no-underline py-3.5">
+              Appearance
+            </AccordionTrigger>
+            <AccordionContent>
+              {/* Background Tint */}
+              <ControlGroup label="Background Tint" ariaLabel="Select background color tint">
+                <div className="flex gap-2.5">
+                  {TINTS.map((tint) => (
+                    <button
+                      key={tint.value}
+                      onClick={() => handleTintChange(tint.value)}
+                      className={`w-8 h-8 rounded-xl border-2 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-indigo-400 focus-visible:outline-offset-2 ${
+                        settings.backgroundTint === tint.value
+                          ? "border-indigo-500 shadow-[0px_3px_0px_#a5b4fc] dark:shadow-[0px_3px_0px_#3730a3] scale-110"
+                          : "border-slate-200 dark:border-slate-600 hover:border-indigo-300 dark:hover:border-indigo-600 shadow-[0px_2px_0px_#e2e8f0] dark:shadow-[0px_2px_0px_#1e293b]"
+                      }`}
+                      style={{ backgroundColor: tint.color }}
+                      aria-label={`Set background to ${tint.label}`}
+                      aria-pressed={settings.backgroundTint === tint.value}
+                      title={tint.label}
+                    />
+                  ))}
+                </div>
+              </ControlGroup>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
     </div>
   );

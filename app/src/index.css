@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -22,62 +22,63 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 10%;
+    --background: 33 14% 97%;       /* stone-50 warmth */
+    --foreground: 215 25% 20%;      /* deep slate text */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
+    --card-foreground: 215 25% 20%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-    --primary: 0 0% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 10%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-    --accent: 0 0% 96%;
-    --accent-foreground: 0 0% 10%;
+    --popover-foreground: 215 25% 20%;
+    --primary: 234 89% 56%;         /* indigo-600 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 215 25% 20%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 14% 45%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 215 25% 20%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 82%;
-    --input: 0 0% 82%;
-    --ring: 0 0% 10%;
-    --radius: 0px;
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 234 89% 56%;            /* indigo ring */
+    --radius: 0.75rem;
 
     /* Lucida Reader System */
     --reader-font: 'Inter', system-ui, sans-serif;
+    --reader-font-size: 1.5rem;
     --reader-letter-spacing: 0em;
     --reader-word-spacing: 0.25em;
     --reader-line-height: 1.6;
     --reader-paragraph-spacing: 1.5em;
     --reader-column-width: 65ch;
     --reader-bg: #FDFBF7;
-    --reader-text: #1A1A1A;
+    --reader-text: #1e293b;         /* slate-800 */
     --reader-highlight: #FFD54F;
-    --reader-ruler: #000000;
+    --reader-ruler: #4f46e5;        /* indigo-600 */
   }
 
   .dark {
-    --background: 0 0% 8%;
-    --foreground: 0 0% 96%;
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 96%;
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 96%;
-    --primary: 0 0% 96%;
-    --primary-foreground: 0 0% 10%;
-    --secondary: 0 0% 14%;
-    --secondary-foreground: 0 0% 96%;
-    --muted: 0 0% 14%;
-    --muted-foreground: 0 0% 70%;
-    --accent: 0 0% 14%;
-    --accent-foreground: 0 0% 96%;
-    --border: 0 0% 22%;
-    --input: 0 0% 22%;
-    --ring: 0 0% 96%;
+    --background: 222 47% 5%;       /* slate-950 */
+    --foreground: 215 20% 75%;      /* slate-300 — soft, not pure white */
+    --card: 222 47% 8%;             /* slate-900 */
+    --card-foreground: 215 20% 75%;
+    --popover: 222 47% 8%;
+    --popover-foreground: 215 20% 75%;
+    --primary: 234 89% 63%;         /* indigo-500 for dark */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 222 47% 12%;
+    --secondary-foreground: 215 20% 75%;
+    --muted: 222 47% 12%;
+    --muted-foreground: 215 14% 55%;
+    --accent: 222 47% 14%;
+    --accent-foreground: 215 20% 75%;
+    --border: 222 40% 18%;
+    --input: 222 40% 18%;
+    --ring: 234 89% 63%;
 
-    /* Reader defaults for dark chrome (tints still selectable) */
+    /* Reader defaults for dark chrome */
     --reader-text: hsl(var(--foreground));
-    --reader-ruler: hsl(var(--foreground));
+    --reader-ruler: hsl(var(--primary));
   }
 
   * {
@@ -94,11 +95,6 @@
   *:focus-visible {
     outline: 2px solid hsl(var(--ring));
     outline-offset: 2px;
-  }
-
-  /* Remove default button rounding globally */
-  button {
-    border-radius: 0 !important;
   }
 }
 
@@ -119,11 +115,15 @@
     cursor: pointer;
     padding: 0.05em 0.1em;
     margin: -0.05em -0.1em;
-    border-radius: 2px;
+    border-radius: 4px;
   }
 
   .lucida-word-token:hover {
-    background-color: rgba(0, 0, 0, 0.04);
+    background-color: rgba(79, 70, 229, 0.08);
+  }
+
+  .dark .lucida-word-token:hover {
+    background-color: rgba(129, 140, 248, 0.12);
   }
 
   .lucida-word-token.is-active {
@@ -140,42 +140,65 @@
     margin-bottom: var(--reader-paragraph-spacing);
   }
 
-  /* Range input styling for Swiss flat design */
+  /* ─── Custom Range Slider Styling ─── */
   input[type="range"] {
     -webkit-appearance: none;
     appearance: none;
-    height: 2px;
-    background: #D1D1D1;
-    border-radius: 0;
+    height: 6px;
+    background: hsl(220 14% 90%);
+    border-radius: 999px;
     outline: none;
+    transition: background 200ms;
+  }
+
+  .dark input[type="range"] {
+    background: hsl(222 40% 20%);
   }
 
   input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 16px;
-    height: 16px;
-    background: #1A1A1A;
-    border: 2px solid #1A1A1A;
+    width: 18px;
+    height: 18px;
+    background: hsl(234 89% 56%);
+    border: 2px solid #fff;
     cursor: pointer;
-    border-radius: 0;
+    border-radius: 999px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    transition: transform 150ms ease, box-shadow 150ms ease;
+  }
+
+  .dark input[type="range"]::-webkit-slider-thumb {
+    background: hsl(234 89% 63%);
+    border-color: hsl(222 47% 15%);
+  }
+
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 2px 8px rgba(79,70,229,0.35);
   }
 
   input[type="range"]::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    background: #1A1A1A;
-    border: 2px solid #1A1A1A;
+    width: 18px;
+    height: 18px;
+    background: hsl(234 89% 56%);
+    border: 2px solid #fff;
     cursor: pointer;
-    border-radius: 0;
+    border-radius: 999px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+
+  .dark input[type="range"]::-moz-range-thumb {
+    background: hsl(234 89% 63%);
+    border-color: hsl(222 47% 15%);
   }
 
   input[type="range"]:focus-visible::-webkit-slider-thumb {
-    outline: 2px solid #000000;
+    outline: 2px solid hsl(234 89% 56%);
     outline-offset: 2px;
   }
 
-  /* Select dropdown flat styling */
+  /* Select dropdown styling */
   select {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -184,6 +207,47 @@
     background-repeat: no-repeat;
     background-position: right 12px center;
     padding-right: 32px;
+  }
+
+  /* ─── Mesh Gradient Animation ─── */
+  @keyframes mesh-drift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    25% {
+      background-position: 100% 0%;
+    }
+    50% {
+      background-position: 100% 100%;
+    }
+    75% {
+      background-position: 0% 100%;
+    }
+  }
+
+  .mesh-gradient-bg {
+    background: 
+      radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(45, 212, 191, 0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 40% 80%, rgba(129, 140, 248, 0.10) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 60%, rgba(20, 184, 166, 0.08) 0%, transparent 50%);
+    background-size: 200% 200%;
+    animation: mesh-drift 20s ease-in-out infinite;
+  }
+
+  /* Custom scrollbar for sidebar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(220 14% 82%);
+    border-radius: 999px;
+  }
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(222 40% 22%);
   }
 }
 

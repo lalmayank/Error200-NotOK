@@ -114,35 +114,40 @@ export default function ReadingPane({
   );
 
   return (
-    <div className="max-w-[var(--reader-column-width)] mx-auto px-4 sm:px-8 py-10 sm:py-12">
-      {paragraphs.length === 0 ? (
-        <div className="flex items-center justify-center h-full min-h-[300px]">
-          <p className="text-muted-foreground text-lg text-center">
-            Paste text in the Source pane and click Rehydrate to begin reading.
-          </p>
-        </div>
-      ) : (
-        paragraphs.map((paragraph) => {
-          // In immersion mode, dim all paragraphs except the active one
-          const isActiveParagraph = paragraph.id === immersionActiveParagraph;
-          const paragraphOpacity = isImmersed
-            ? isActiveParagraph
-              ? 1
-              : 0.2
-            : 1;
+    <div className="max-w-4xl mx-auto my-6 sm:my-10">
+      {/* Floating "page" canvas */}
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 md:p-12 min-h-[400px]">
+        <div className="max-w-[var(--reader-column-width)] mx-auto">
+          {paragraphs.length === 0 ? (
+            <div className="flex items-center justify-center h-full min-h-[300px]">
+              <p className="text-slate-400 dark:text-slate-500 text-lg text-center">
+                Paste text in the Source pane and click Rehydrate to begin reading.
+              </p>
+            </div>
+          ) : (
+            paragraphs.map((paragraph) => {
+              // In immersion mode, dim all paragraphs except the active one
+              const isActiveParagraph = paragraph.id === immersionActiveParagraph;
+              const paragraphOpacity = isImmersed
+                ? isActiveParagraph
+                  ? 1
+                  : 0.2
+                : 1;
 
-          return (
-            <ParagraphBlock
-              key={paragraph.id}
-              paragraph={paragraph}
-              activeIndex={activeIndex}
-              wasActiveIndex={wasActiveIndex}
-              onWordClick={handleWordClick}
-              paragraphOpacity={paragraphOpacity}
-            />
-          );
-        })
-      )}
+              return (
+                <ParagraphBlock
+                  key={paragraph.id}
+                  paragraph={paragraph}
+                  activeIndex={activeIndex}
+                  wasActiveIndex={wasActiveIndex}
+                  onWordClick={handleWordClick}
+                  paragraphOpacity={paragraphOpacity}
+                />
+              );
+            })
+          )}
+        </div>
+      </div>
     </div>
   );
 }
