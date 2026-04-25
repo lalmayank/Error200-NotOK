@@ -15,7 +15,7 @@ export default function LandingPage() {
       <nav className="flex items-center justify-between px-6 py-4 border-b border-border/40 bg-background/40 backdrop-blur-xl sticky top-0 z-50">
         <div className="flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-primary" />
-          <span className="text-lg font-semibold tracking-tight">Project Lucida</span>
+          <span className="text-lg font-semibold tracking-tight">Cadence</span>
         </div>
         <div className="flex items-center gap-6">
           <a href="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
@@ -184,10 +184,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-2 mb-4 opacity-50">
             <BookOpen className="w-5 h-5" />
-            <span className="font-semibold tracking-tight">Project Lucida</span>
+            <span className="font-semibold tracking-tight">Cadence</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Project Lucida. Crafted for cognitive clarity.
+            © {new Date().getFullYear()} Cadence. Crafted for cognitive clarity.
           </p>
         </div>
       </footer>

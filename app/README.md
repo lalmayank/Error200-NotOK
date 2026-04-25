@@ -1,4 +1,4 @@
-# PS-06 Project Lucida (Vite + React + Hono/tRPC)
+# PS-06 Cadence (Vite + React + Hono/tRPC)
 
 This is a dual-pane adaptive reading environment:
 - Paste text into the Source pane and **Rehydrate** into a token-indexed corpus.

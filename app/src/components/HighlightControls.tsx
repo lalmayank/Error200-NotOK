@@ -1,18 +1,24 @@
 import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { Volume2, VolumeX } from "lucide-react";
 import type { HighlightState, HighlightActions } from "@/hooks/useHighlighter";
+import type { TTSState, TTSActions } from "@/hooks/useTextToSpeech";
 
 interface HighlightControlsProps {
   state: HighlightState;
   actions: HighlightActions;
   isImmersed: boolean;
+  ttsState: TTSState;
+  ttsActions: TTSActions;
 }
 
 export default function HighlightControls({
   state,
   actions,
   isImmersed,
+  ttsState,
+  ttsActions,
 }: HighlightControlsProps) {
   const { activeIndex, mode, isRunning, wpm, totalWords } = state;
 
@@ -73,6 +79,33 @@ export default function HighlightControls({
         <span className="text-xs font-mono text-muted-foreground">
           {activeIndex + 1} / {totalWords}
         </span>
+      </div>
+
+      {/* TTS Toggle */}
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={ttsActions.toggle}
+          className={`flex items-center gap-2 px-3 py-1.5 text-xs font-medium tracking-wider uppercase border transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 ${
+            ttsState.isEnabled
+              ? "bg-primary text-primary-foreground border-primary/50 shadow-md shadow-primary/20"
+              : "bg-background text-muted-foreground border-border hover:bg-muted"
+          }`}
+          aria-pressed={ttsState.isEnabled}
+          aria-label={ttsState.isEnabled ? "Disable text to speech" : "Enable text to speech"}
+        >
+          {ttsState.isEnabled ? (
+            <Volume2 className="w-3.5 h-3.5" />
+          ) : (
+            <VolumeX className="w-3.5 h-3.5" />
+          )}
+          {ttsState.isEnabled ? "TTS On" : "TTS Off"}
+        </button>
+        {ttsState.isEnabled && ttsState.isSpeaking && (
+          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <span className="w-2 h-2 bg-primary rounded-full animate-pulse" aria-hidden="true" />
+            Speaking
+          </span>
+        )}
       </div>
 
       {/* Manual Controls */}

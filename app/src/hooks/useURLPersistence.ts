@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 
 export interface ReaderSettings {
   font: string;
+  fontSize: number;
   letterSpacing: number;
   wordSpacing: number;
   lineHeight: number;
@@ -14,6 +15,7 @@ export interface ReaderSettings {
 
 const DEFAULT_SETTINGS: ReaderSettings = {
   font: "Inter",
+  fontSize: 1.5,
   letterSpacing: 0,
   wordSpacing: 0.25,
   lineHeight: 1.6,

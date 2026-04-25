@@ -9,7 +9,7 @@ interface CapturePaneProps {
 
 export default function CapturePane({ onRehydrate, isImmersed }: CapturePaneProps) {
   const [text, setText] = useState(
-    "Project Lucida is a high-performance adaptive reading environment. Paste your own text here, then click Rehydrate to transform it into an individually tokenized reading experience. Every word becomes independently addressable, allowing for granular highlighting, precise typographic control, and cognitive accessibility support."
+    "Cadence is a high-performance adaptive reading environment. Paste your own text here, then click Rehydrate to transform it into an individually tokenized reading experience. Every word becomes independently addressable, allowing for granular highlighting, precise typographic control, and cognitive accessibility support."
   );
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 

@@ -1,4 +1,4 @@
-# Project Lucida — Backend Design Document
+# Cadence — Backend Design Document
 
 ## 1. Data Architecture
 

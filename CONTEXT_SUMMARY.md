@@ -1,9 +1,11 @@
-# CONTEXT SUMMARY — Horizon / Project Lucida
+# CONTEXT SUMMARY — Horizon / Cadence
 
 ## TL;DR
 - **Canonical runnable app:** `04_final/app` (Vite + React frontend + Hono + tRPC backend).
 - **Earlier iterations:** `01/` (React+TS Lucida prototype), `02/project-lucida/` (React JS prototype). `03/` is empty.
 - **Backend persistence:** Drizzle ORM + **MySQL** (Planetscale mode). Note: `04_final/backend.md` still describes **SQLite** and is outdated.
+- **PDF Upload:** Sidebar includes a PDF upload button using `pdfjs-dist` to extract text from PDFs and feed it into the reading pane.
+- **Text-to-Speech (TTS):** Word-by-word TTS via the Web Speech API, synced with the highlight system. Speed adapts to current WPM.
 
 ---
 
@@ -62,7 +64,7 @@
 
 ---
 
-## 3) Final App — “Project Lucida” Feature Set (PS-06 oriented)
+## 3) Final App — “Cadence” Feature Set (PS-06 oriented)
 
 ### Reading UX
 - **Dual-pane workflow:**
@@ -73,10 +75,13 @@
 - **Immersion mode:** Dims UI chrome and non-active paragraphs for focus.
 - **Reading ruler:** A small “gutter marker” tracks the active word’s vertical position (does not overlay text).
 - **Analytics footer:** Tracks words/time/WPM live (client-side) and renders a non-overlapping bottom bar.
+- **PDF Import:** Sidebar "Upload PDF" button uses `pdfjs-dist` to extract text from uploaded PDF files, feeding it directly into the reading pane via `handleRehydrate`.
+- **Text-to-Speech:** Toggle in the sidebar highlight controls enables word-by-word TTS using the Web Speech API. Speech rate dynamically maps to the current WPM setting (60 WPM → rate 0.4, 150 WPM → 1.0, 300 WPM → 2.0). TTS pauses/stops when the highlight pauses.
 
 ### Live “Atoms” (CSS Custom Properties)
 - Reading settings are applied as CSS variables ("atoms") on the reading pane element:
   - `--reader-font`
+  - `--reader-font-size`
   - `--reader-letter-spacing`
   - `--reader-word-spacing`
   - `--reader-line-height`
@@ -114,6 +119,13 @@
   - Local preset CRUD UI.
 - `src/components/AnalyticsFooter.tsx`
   - Bottom stats bar (non-fixed).
+
+### Hooks
+- `src/hooks/useTextToSpeech.ts`
+  - Custom hook wrapping the Web Speech API for word-by-word TTS.
+  - Converts WPM to `SpeechSynthesis` rate. Auto-cancels previous speech on each new word.
+- `src/lib/pdfParser.ts`
+  - Extracts text from PDFs using `pdfjs-dist` with Vite-compatible worker loading.
 
 ### Backend
 - `api/boot.ts`
@@ -208,18 +220,20 @@ From `04_final/app`:
 2. **No committed migrations:** `db/migrations/` is empty except `.gitkeep`.
 3. **Logout link mismatch:** UI links to `GET /api/oauth/logout` in `src/pages/LucidaApp.tsx`, but no such Hono route exists. Current logout implementation is `auth.logout` (tRPC mutation).
 4. **Cloud preset schema mismatch:**
-   - Frontend settings include `paragraphSpacing`.
-   - DB + contracts + tRPC preset schema do **not** include `paragraphSpacing`.
+   - Frontend settings include `paragraphSpacing` and `fontSize`.
+   - DB + contracts + tRPC preset schema do **not** include `paragraphSpacing` or `fontSize`.
    - Result: cloud-created presets cannot fully represent the current reader settings.
-5. **AWS SDK deps appear unused:** `@aws-sdk/client-s3` and `@aws-sdk/s3-request-presigner` are in dependencies but aren’t referenced in the code currently.
+5. **AWS SDK deps appear unused:** `@aws-sdk/client-s3` and `@aws-sdk/s3-request-presigner` are in dependencies but aren't referenced in the code currently.
+6. **TTS browser support:** Text-to-Speech uses the Web Speech API which is well-supported in modern browsers but may behave differently across engines (Chrome vs Firefox vs Safari).
 
 ---
 
 ## 9) Suggested Next Steps (If continuing development)
 - Decide whether presets are **local-only** vs **cloud-synced**:
-  - If cloud-synced: add `paragraphSpacing` to `db/schema.ts` + `contracts/preset.ts` + preset router + UI mutation payload.
+  - If cloud-synced: add `paragraphSpacing` and `fontSize` to `db/schema.ts` + `contracts/preset.ts` + preset router + UI mutation payload.
   - If local-only: remove/disable cloud preset mutation to avoid partial sync.
 - Fix logout UX:
   - Either implement `GET /api/oauth/logout` in Hono, or change the UI to call `trpc.auth.logout`.
 - Generate and commit Drizzle migrations for a reproducible DB setup.
 - If auth is required for production deployments, ensure `.env` is complete and document required values in `04_final/app/README.md`.
+- Consider adding TTS voice selection UI (the Web Speech API supports multiple voices per language).

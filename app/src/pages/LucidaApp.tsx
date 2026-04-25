@@ -1,4 +1,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { Upload, Loader2 } from "lucide-react";
+import { extractTextFromPDF } from "@/lib/pdfParser";
 import { useTheme } from "next-themes";
 import { useAuth } from "@/hooks/useAuth";
 import { trpc } from "@/providers/trpc";
@@ -15,6 +17,7 @@ import { useHighlighter } from "@/hooks/useHighlighter";
 import { useReadingAnalytics } from "@/hooks/useReadingAnalytics";
 import { useURLPersistence } from "@/hooks/useURLPersistence";
 import { usePresets } from "@/hooks/usePresets";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import type { ReaderSettings } from "@/hooks/useURLPersistence";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -51,6 +54,9 @@ export default function LucidaApp() {
   const { batchUpdate, setTarget } = useCSSScheduler();
   const { serialize, loadFromURL, DEFAULT_SETTINGS } = useURLPersistence();
   const { presets, savePreset, deletePreset } = usePresets();
+  const [isExtracting, setIsExtracting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [ttsState, ttsActions] = useTextToSpeech();
 
   const initialSettings = useMemo(() => {
     const urlSettings = loadFromURL();
@@ -68,6 +74,33 @@ export default function LucidaApp() {
     setIsSidebarOpen(!isMobile);
     if (isMobile) setActivePane("reader");
   }, [isMobile]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsExtracting(true);
+    try {
+      const text = await extractTextFromPDF(file);
+      
+      // Feed the extracted text directly into your existing rehydrate function
+      handleRehydrate(text);
+      
+      // Automatically switch to the reader pane
+      setActivePane("reader");
+      
+      // If on mobile, close the sidebar so they can start reading immediately
+      if (isMobile) setIsSidebarOpen(false);
+      
+    } catch (error) {
+      console.error("Failed to parse PDF:", error);
+      alert("Could not extract text from this PDF. It might be an image-based scan.");
+    } finally {
+      setIsExtracting(false);
+      // Reset the file input so the user can upload the same file again if needed
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   const totalWords = useMemo(() => {
     return paragraphs.reduce((sum, p) => sum + p.words.length, 0);
@@ -118,6 +151,36 @@ export default function LucidaApp() {
   useEffect(() => {
     analyticsActions.updateWordsRead(highlightState.activeIndex);
   }, [highlightState.activeIndex, analyticsActions]);
+
+  // TTS: speak the current word when highlight advances
+  useEffect(() => {
+    if (!ttsState.isEnabled || highlightState.activeIndex < 0) return;
+    // Find the current word text from paragraphs
+    let wordText = "";
+    let idx = 0;
+    for (const p of paragraphs) {
+      for (const w of p.words) {
+        if (idx === highlightState.activeIndex) {
+          wordText = w.text;
+          break;
+        }
+        idx++;
+      }
+      if (wordText) break;
+    }
+    if (wordText) {
+      ttsActions.speak(wordText, highlightState.wpm);
+    }
+  }, [highlightState.activeIndex, ttsState.isEnabled, paragraphs, ttsActions, highlightState.wpm]);
+
+  // Stop TTS when highlight transitions from running → paused
+  const wasRunningRef = useRef(false);
+  useEffect(() => {
+    if (wasRunningRef.current && !highlightState.isRunning && ttsState.isEnabled) {
+      ttsActions.stop();
+    }
+    wasRunningRef.current = highlightState.isRunning;
+  }, [highlightState.isRunning, ttsState.isEnabled, ttsActions]);
 
   useEffect(() => {
     if (highlightState.isRunning) {
@@ -248,7 +311,7 @@ export default function LucidaApp() {
             {isSidebarOpen ? "Hide" : "Show"}
           </button>
 
-          <h1 className="text-lg font-semibold tracking-tight">Project Lucida</h1>
+          <h1 className="text-lg font-semibold tracking-tight">Cadence</h1>
           <span className="hidden sm:inline text-xs text-muted-foreground font-mono tracking-wide opacity-70">
             Adaptive Reading Environment
           </span>
@@ -337,6 +400,35 @@ export default function LucidaApp() {
         >
           <div className="h-full flex flex-col overflow-hidden">
             <div className="flex-1 overflow-y-auto custom-scrollbar">
+              
+              {/* Document Import Section */}
+              <div className="px-5 py-4 border-b border-border/30 bg-muted/10">
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  className="hidden"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isExtracting}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg border border-border/50 bg-background/50 hover:bg-background/80 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                >
+                  {isExtracting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      <span>Extracting text...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                      <span>Upload PDF</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
               <ControlPanel settings={settings} onSettingsChange={handleSettingsChange} isImmersed={isImmersed} />
               <PresetManager
                 presets={presets}
@@ -347,7 +439,7 @@ export default function LucidaApp() {
                 isImmersed={isImmersed}
               />
             </div>
-            <HighlightControls state={highlightState} actions={highlightActions} isImmersed={isImmersed} />
+            <HighlightControls state={highlightState} actions={highlightActions} isImmersed={isImmersed} ttsState={ttsState} ttsActions={ttsActions} />
           </div>
         </div>
 
@@ -357,7 +449,7 @@ export default function LucidaApp() {
             className={
               isMobile
                 ? `${activePane === "source" && !isImmersed ? "flex-1" : "hidden"}`
-                : `shrink-0 transition-all duration-300 ${isImmersed ? "w-0 opacity-0 overflow-hidden" : "w-1/2 opacity-100"}`
+                : isImmersed ? "hidden" : "shrink-0 w-[420px] opacity-100 transition-all duration-300"
             }
           >
             <CapturePane onRehydrate={handleRehydrate} isImmersed={isImmersed} />
