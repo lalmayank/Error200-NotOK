@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
-import { Upload, Loader2 } from "lucide-react";
+import { Upload, Loader2, Home, BookOpen } from "lucide-react";
 import { extractTextFromPDF } from "@/lib/pdfParser";
 import { useTheme } from "next-themes";
 import { useAuth } from "@/hooks/useAuth";
@@ -294,39 +294,53 @@ export default function LucidaApp() {
       className="h-screen w-screen flex flex-col overflow-hidden text-foreground transition-colors duration-300"
       style={{ backgroundColor: "var(--reader-bg)" }}
     >
-      {/* Header */}
-{/* Header (Glass) */}
+      {/* Header (Pastel Glass) */}
       <header
-        className={`shrink-0 h-14 border-b border-border/30 bg-background/40 backdrop-blur-xl flex items-center justify-between px-4 sm:px-6 z-50 transition-all duration-400 ${
+        className={`shrink-0 h-14 border-b border-violet-100/60 bg-white/60 backdrop-blur-xl flex items-center justify-between px-4 sm:px-6 z-50 transition-all duration-400 ${
           isImmersed ? "opacity-10" : "opacity-100"
         }`}
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          {/* Home Nav Link */}
+          <a
+            href="/"
+            className="flex items-center justify-center w-9 h-9 rounded-xl bg-violet-50 border border-violet-100 text-violet-500 hover:bg-violet-100 hover:text-violet-600 hover:-translate-y-0.5 transition-all duration-200"
+            aria-label="Go to Home page"
+            title="Home"
+          >
+            <Home className="w-4 h-4" />
+          </a>
+
           <button
             onClick={() => setIsSidebarOpen((p) => !p)}
-            className="px-2 py-1 text-xs font-medium tracking-wider uppercase border border-border/50 rounded-md text-foreground hover:bg-foreground/10 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 transition-colors"
+            className="px-3 py-1.5 text-[10px] font-semibold tracking-widest uppercase rounded-xl border border-violet-100 text-slate-600 bg-white/80 hover:bg-violet-50 hover:-translate-y-0.5 shadow-[0px_2px_0px_#ede9fe] active:translate-y-0.5 active:shadow-[0px_0px_0px_#ede9fe] focus-visible:outline-2 focus-visible:outline-violet-300 focus-visible:outline-offset-2 transition-all duration-200"
             aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
             aria-pressed={isSidebarOpen}
           >
             {isSidebarOpen ? "Hide" : "Show"}
           </button>
 
-          <h1 className="text-lg font-semibold tracking-tight">Cadence</h1>
-          <span className="hidden sm:inline text-xs text-muted-foreground font-mono tracking-wide opacity-70">
-            Adaptive Reading Environment
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center">
+              <BookOpen className="w-3.5 h-3.5 text-violet-600" />
+            </div>
+            <h1 className="text-lg font-bold tracking-tight text-slate-800">Cadence</h1>
+          </div>
+          <span className="hidden sm:inline text-[10px] text-violet-300 font-mono tracking-widest uppercase font-semibold">
+            Workspace
           </span>
         </div>
 
         <div className="flex items-center gap-3">
           {/* Mobile Pane Switcher */}
           {isMobile && !isImmersed && (
-            <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg" role="tablist" aria-label="Pane switcher">
+            <div className="flex items-center gap-1 bg-violet-50/60 p-1 rounded-xl border border-violet-100" role="tablist" aria-label="Pane switcher">
               <button
                 onClick={() => setActivePane("source")}
-                className={`px-3 py-1 text-xs font-medium tracking-wider uppercase rounded-md transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 ${
+                className={`px-3 py-1 text-[10px] font-semibold tracking-widest uppercase rounded-lg transition-all duration-200 focus-visible:outline-2 focus-visible:outline-violet-300 focus-visible:outline-offset-2 ${
                   activePane === "source"
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-white text-slate-700 shadow-[0px_2px_0px_#ede9fe] border border-violet-100"
+                    : "text-slate-400 hover:text-violet-500"
                 }`}
                 role="tab"
                 aria-selected={activePane === "source"}
@@ -335,10 +349,10 @@ export default function LucidaApp() {
               </button>
               <button
                 onClick={() => setActivePane("reader")}
-                className={`px-3 py-1 text-xs font-medium tracking-wider uppercase rounded-md transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 ${
+                className={`px-3 py-1 text-[10px] font-semibold tracking-widest uppercase rounded-lg transition-all duration-200 focus-visible:outline-2 focus-visible:outline-violet-300 focus-visible:outline-offset-2 ${
                   activePane === "reader"
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-white text-slate-700 shadow-[0px_2px_0px_#ede9fe] border border-violet-100"
+                    : "text-slate-400 hover:text-violet-500"
                 }`}
                 role="tab"
                 aria-selected={activePane === "reader"}
@@ -350,17 +364,17 @@ export default function LucidaApp() {
 
           <button
             onClick={toggleTheme}
-            className="px-3 py-1.5 text-xs font-medium tracking-wider uppercase border border-border/50 rounded-md text-foreground hover:bg-foreground/10 transition-colors"
+            className="px-3 py-1.5 text-[10px] font-semibold tracking-widest uppercase rounded-xl border border-violet-100 text-slate-600 bg-white/80 hover:bg-violet-50 hover:-translate-y-0.5 shadow-[0px_2px_0px_#ede9fe] active:translate-y-0.5 active:shadow-[0px_0px_0px_#ede9fe] transition-all duration-200"
           >
             {theme === "dark" ? "Light" : "Dark"}
           </button>
 
           <button
             onClick={() => setIsImmersed((p) => !p)}
-            className={`px-3 py-1.5 text-xs font-medium tracking-wider uppercase border rounded-md transition-colors ${
+            className={`px-3 py-1.5 text-[10px] font-semibold tracking-widest uppercase rounded-xl border transition-all duration-200 ${
               isImmersed
-                ? "bg-primary text-primary-foreground border-primary/50 shadow-md shadow-primary/20"
-                : "text-foreground border-border/50 hover:bg-foreground/10"
+                ? "bg-violet-600 text-white border-violet-600 shadow-[0px_3px_0px_#7c3aed]"
+                : "text-slate-600 border-violet-100 bg-white/80 hover:bg-violet-50 hover:-translate-y-0.5 shadow-[0px_2px_0px_#ede9fe] active:translate-y-0.5 active:shadow-[0px_0px_0px_#ede9fe]"
             }`}
           >
             {isImmersed ? "Exit Immersion" : "Immersion"}
@@ -369,13 +383,13 @@ export default function LucidaApp() {
           {/* Auth */}
           {user ? (
             <div className="flex items-center gap-3 ml-2">
-              <span className="hidden sm:inline text-xs font-medium">{user.name || "User"}</span>
-              <a href="/api/oauth/logout" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <span className="hidden sm:inline text-[11px] font-semibold text-slate-600">{user.name || "User"}</span>
+              <a href="/api/oauth/logout" className="text-[11px] text-slate-400 hover:text-violet-600 transition-colors duration-200">
                 Log out
               </a>
             </div>
           ) : (
-            <a href="/login" className="text-xs font-medium text-muted-foreground hover:text-foreground ml-2 transition-colors">
+            <a href="/login" className="text-[11px] font-semibold text-slate-400 hover:text-violet-600 ml-2 transition-colors duration-200">
               Log in
             </a>
           )}
@@ -389,10 +403,10 @@ export default function LucidaApp() {
         <div
           className={
             isMobile
-              ? `fixed top-14 bottom-0 left-0 z-50 w-[320px] max-w-[85vw] border-r border-border/30 bg-muted/40 backdrop-blur-2xl transition-transform duration-300 ${
+              ? `fixed top-14 bottom-0 left-0 z-50 w-[320px] max-w-[85vw] border-r border-violet-100 bg-white/70 backdrop-blur-xl transition-transform duration-300 ${
                   isImmersed || !isSidebarOpen ? "-translate-x-full" : "translate-x-0"
                 }`
-              : `shrink-0 w-80 border-r border-border/30 bg-muted/30 backdrop-blur-2xl transition-all duration-300 ${
+              : `shrink-0 w-80 border-r border-violet-100 bg-violet-50/20 backdrop-blur-xl transition-all duration-300 ${
                   isImmersed || !isSidebarOpen ? "w-0 opacity-0 overflow-hidden" : "w-80 opacity-100"
                 }`
           }
@@ -402,7 +416,7 @@ export default function LucidaApp() {
             <div className="flex-1 overflow-y-auto custom-scrollbar">
               
               {/* Document Import Section */}
-              <div className="px-5 py-4 border-b border-border/30 bg-muted/10">
+              <div className="px-5 py-4 border-b border-violet-100/50 bg-white/40">
                 <input
                   type="file"
                   accept="application/pdf"
@@ -413,16 +427,16 @@ export default function LucidaApp() {
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isExtracting}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg border border-border/50 bg-background/50 hover:bg-background/80 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-[11px] font-semibold tracking-wider uppercase rounded-xl border border-violet-100 bg-white/80 text-slate-600 hover:bg-violet-50 hover:-translate-y-0.5 shadow-[0px_2px_0px_#ede9fe] active:translate-y-0.5 active:shadow-[0px_0px_0px_#ede9fe] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group"
                 >
                   {isExtracting ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                      <span>Extracting text...</span>
+                      <Loader2 className="w-4 h-4 animate-spin text-violet-500" />
+                      <span className="text-violet-500">Extracting text...</span>
                     </>
                   ) : (
                     <>
-                      <Upload className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                      <Upload className="w-4 h-4 text-violet-300 group-hover:text-violet-500 transition-colors duration-200" />
                       <span>Upload PDF</span>
                     </>
                   )}
