@@ -7,6 +7,8 @@ import { createContext } from "./context";
 import { env } from "./lib/env";
 import { createOAuthCallbackHandler } from "./kimi/auth";
 import { Paths } from "@contracts/constants";
+import dotenv from "dotenv";
+dotenv.config(); // This is what actually loads the variables into process.env
 
 // 1. Define the Hono instance
 const app = new Hono().basePath("/api");
